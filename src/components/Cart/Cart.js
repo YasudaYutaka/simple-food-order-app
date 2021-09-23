@@ -17,12 +17,22 @@ const Cart = (props) => {
   };
 
   const cartItemAddHandler = (item) => {
-    cartCtx.addItem({...item, amount: 1});
+    cartCtx.addItem({ ...item, amount: 1 });
   };
 
   const orderHandler = () => {
     setIsCheckout(true);
-  }
+  };
+
+  const submitOrderHandler = (userData) => {
+    fetch('https://react-http-d5c15-default-rtdb.firebaseio.com/orders.json', {
+      method: 'POST',
+      body: JSON.stringify({
+        user: userData,
+        orderedItems: cartCtx.items
+      })
+    });
+  };
 
   const cartItems = (
     <ul className={styles["cart-items"]}>
@@ -46,15 +56,21 @@ const Cart = (props) => {
         <span>Total Amount</span>
         <span>{totalAmount}</span>
       </div>
-      {isCheckout && <Checkout onCancel={props.onHideCart}/>}
-      {!isCheckout &&
-      <div className={styles.actions}>
-        <button className={styles["button--alt"]} onClick={props.onHideCart}>
-          Close
-        </button>
-        {hasItems && <button className={styles.button} onClick={orderHandler} >Order</button>}
-      </div>
-      }
+      {isCheckout && (
+        <Checkout onConfirm={submitOrderHandler} onCancel={props.onHideCart} />
+      )}
+      {!isCheckout && (
+        <div className={styles.actions}>
+          <button className={styles["button--alt"]} onClick={props.onHideCart}>
+            Close
+          </button>
+          {hasItems && (
+            <button className={styles.button} onClick={orderHandler}>
+              Order
+            </button>
+          )}
+        </div>
+      )}
     </Modal>
   );
 };
